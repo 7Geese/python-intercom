@@ -460,9 +460,9 @@ class Intercom(object):
         if isinstance(metadata, dict):
             params['metadata'] = metadata
 
-        call = cls._call(
-             'POST', 'https://api.intercom.io/events', params=params)
-        return call
+        url = "{}events".format(cls.api_endpoint_v2)
+        response = cls._call('POST', url, params=params)
+        return response
 
     @classmethod
     def create_or_update_company(cls, company):
@@ -474,5 +474,5 @@ class Intercom(object):
         [1] https://doc.intercom.io/api/#create-or-update-company
         """
         url = "{}companies".format(cls.api_endpoint_v2)
-        call = cls._call('POST', url, params=company)
-        return call
+        response = cls._call('POST', url, params=company)
+        return response
