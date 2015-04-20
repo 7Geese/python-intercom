@@ -26,9 +26,10 @@ DEFAULT_TIMEOUT = 10  # seconds
 
 class IntercomError(Exception):
     """ Base error. """
-    def __init__(self, message, result=None):
+    def __init__(self, message, result=None, response=None):
         super(IntercomError, self).__init__(message)
         self.result = result
+        self.response = response
 
 
 class AuthenticationError(IntercomError):
@@ -57,6 +58,11 @@ class ServiceUnavailableError(IntercomError):
     pass
 
 
+class RateLimitError(IntercomError):
+    """ Raised when the API rate limit has been exceeded """
+    pass
+
+
 def api_call(func_to_decorate):
     """ Decorator for handling AWS credentials. """
     @functools.wraps(func_to_decorate)
@@ -76,6 +82,8 @@ def raise_errors_on_failure(response):
         raise ResourceNotFound("Either the URL or the user being referred to was not found.")
     elif response.status_code == 401:
         raise AuthenticationError("Invalid API key/username provided.")
+    elif response.status_code == 429:
+        raise RateLimitError("Rate limit exceeded", response=response)
     elif response.status_code == 500:
         raise ServerError("Server error.")
     elif response.status_code == 502:
